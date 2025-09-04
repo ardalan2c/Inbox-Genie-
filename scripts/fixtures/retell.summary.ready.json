@@ -1,0 +1,32 @@
+{
+  "type": "summary.ready",
+  "event_id": "test_summary_ready_001",
+  "call_id": "test_call_12345",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "summary": {
+    "disposition": "HOT",
+    "notes": "Customer is very interested in scheduling a property viewing. Mentioned they need to move by end of month. Asked about 3-bedroom units specifically.",
+    "follow_up_required": true,
+    "lead_quality": "high",
+    "next_steps": "Schedule property viewing within 48 hours"
+  },
+  "caller": {
+    "phone": "+15551234567",
+    "name": "John Doe"
+  },
+  "duration_seconds": 180,
+  "transcript": [
+    {
+      "role": "user",
+      "text": "Hi, I'm calling about the apartment listing I saw online."
+    },
+    {
+      "role": "ai", 
+      "text": "Hello! Thank you for calling about our apartment listing. I'd be happy to help you with information about available units."
+    },
+    {
+      "role": "user",
+      "text": "I'm looking for a 3-bedroom unit and need to move by the end of the month. Do you have anything available?"
+    }
+  ]
+}

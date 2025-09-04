@@ -1,0 +1,302 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Tenant {
+  id                   String   @id @default(cuid())
+  name                 String
+  timezone             String   @default("America/Toronto")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  concurrencyCap       Int      @default(3)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  leads              Lead[]
+  calls              Call[]
+  bookings           Booking[]
+  usages             Usage[]
+  invoices           Invoice[]
+  auditLogs          AuditLog[]
+  BusinessProfile    BusinessProfile[]
+  Message            Message[]
+  Suppression        Suppression[]
+  Dnc                Dnc[]
+  ReviveLead         ReviveLead[]
+  OutreachJob        OutreachJob[]
+  NumberRecord       NumberRecord[]
+  CalendarConnection CalendarConnection[]
+  OverageEstimate    OverageEstimate[]
+}
+
+model BusinessProfile {
+  id        String   @id @default(cuid())
+  tenantId  String
+  json      Json
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model Lead {
+  id             String    @id @default(cuid())
+  tenantId       String
+  name           String?
+  phone          String    @db.VarChar(32)
+  tags           String[]
+  timezone       String?
+  lastActivityAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  calls    Call[]
+  bookings Booking[]
+}
+
+model Call {
+  id        String    @id @default(cuid())
+  tenantId  String
+  leadId    String?
+  from      String
+  to        String
+  agentId   String?
+  status    String    @default("started")
+  summary   Json?
+  startedAt DateTime? @default(now())
+  endedAt   DateTime?
+  createdAt DateTime  @default(now())
+
+  tenant Tenant     @relation(fields: [tenantId], references: [id])
+  lead   Lead?      @relation(fields: [leadId], references: [id])
+  turns  CallTurn[]
+}
+
+model CallTurn {
+  id        String   @id @default(cuid())
+  callId    String
+  role      String
+  text      String?
+  createdAt DateTime @default(now())
+
+  call Call @relation(fields: [callId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  tenantId  String
+  to        String
+  from      String
+  body      String
+  direction String
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model Booking {
+  id           String   @id @default(cuid())
+  tenantId     String
+  leadId       String?
+  service      String?
+  start        DateTime
+  end          DateTime
+  status       String   @default("confirmed")
+  depositCents Int?
+  createdAt    DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  lead   Lead?  @relation(fields: [leadId], references: [id])
+}
+
+model Suppression {
+  id        String   @id @default(cuid())
+  tenantId  String
+  phone     String
+  reason    String
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model Dnc {
+  id        String   @id @default(cuid())
+  tenantId  String
+  phone     String
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  tenantId  String?
+  leadId    String?
+  type      String
+  data      Json?
+  createdAt DateTime @default(now())
+  Tenant    Tenant?  @relation(fields: [tenantId], references: [id])
+}
+
+model ReviveLead {
+  id             String    @id @default(cuid())
+  tenantId       String
+  phone          String
+  stage          String?
+  timezone       String?
+  lastActivityAt DateTime?
+  createdAt      DateTime  @default(now())
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id])
+  jobs   OutreachJob[]
+}
+
+model OutreachJob {
+  id           String   @id @default(cuid())
+  tenantId     String
+  reviveLeadId String
+  runAt        DateTime
+  status       String   @default("queued")
+  attempts     Int      @default(0)
+  lastError    String?
+  createdAt    DateTime @default(now())
+
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  reviveLead  ReviveLead        @relation(fields: [reviveLeadId], references: [id])
+  attemptsRel OutreachAttempt[]
+}
+
+model OutreachAttempt {
+  id        String   @id @default(cuid())
+  jobId     String
+  outcome   String
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  job OutreachJob @relation(fields: [jobId], references: [id])
+}
+
+model Usage {
+  id          String   @id @default(cuid())
+  tenantId    String
+  kind        String
+  amount      Int
+  periodStart DateTime
+  periodEnd   DateTime
+  createdAt   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model Invoice {
+  id         String   @id
+  tenantId   String
+  status     String
+  totalCents Int?
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model WebhookOutbox {
+  id            String    @id @default(cuid())
+  kind          String
+  payload       Json
+  createdAt     DateTime  @default(now())
+  deliveredAt   DateTime?
+  tryCount      Int       @default(0)
+  nextAttemptAt DateTime  @default(now())
+}
+
+model NumberRecord {
+  id        String   @id @default(cuid())
+  tenantId  String
+  phone     String
+  provider  String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, phone], map: "lead_phone_idx")
+}
+
+model CalendarConnection {
+  id           String   @id @default(cuid())
+  tenantId     String
+  provider     String // 'google'
+  accessToken  String
+  refreshToken String
+  expiryDate   DateTime
+  createdAt    DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+model ProcessedEvent {
+  id        String   @id
+  kind      String
+  createdAt DateTime @default(now())
+}
+
+model OverageEstimate {
+  id        String   @id @default(cuid())
+  tenantId  String
+  kind      String
+  amount    Int
+  period    String
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+}
+
+// NextAuth tables
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

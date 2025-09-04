@@ -1,0 +1,27 @@
+{
+  "name": "inbox-genie",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.4.0",
+  "scripts": {
+    "dev": "concurrently -c auto -n web,api \"pnpm --filter @inbox-genie/web dev\" \"pnpm --filter @inbox-genie/api start:dev\"",
+    "dev:all": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "audit:run": "node scripts/audit.mjs",
+    "lh": "node scripts/lighthouse.mjs",
+    "e2e": "playwright test",
+    "dev:keys": "node scripts/dev-keys.js",
+    "demo:seed": "node scripts/demo.seed.mjs",
+    "demo:start": "pnpm demo:seed && pnpm dev:all"
+    ,"smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.4.5",
+    "lighthouse": "^12.3.0"
+  }
+}

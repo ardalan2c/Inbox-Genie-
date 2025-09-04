@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --radius: 1.25rem; }
+html:focus-within { scroll-behavior: smooth; }
+*:focus-visible { outline: 2px solid theme('colors.primary.DEFAULT'); outline-offset: 2px; }
+.container { @apply mx-auto px-6 md:px-8; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+

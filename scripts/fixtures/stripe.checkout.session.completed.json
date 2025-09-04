@@ -1,0 +1,90 @@
+{
+  "id": "evt_test_webhook_001",
+  "object": "event",
+  "api_version": "2024-06-20",
+  "created": 1705315800,
+  "data": {
+    "object": {
+      "id": "cs_test_12345",
+      "object": "checkout.session",
+      "after_expiration": null,
+      "allow_promotion_codes": null,
+      "amount_subtotal": 9900,
+      "amount_total": 9900,
+      "automatic_tax": {
+        "enabled": false,
+        "status": null
+      },
+      "billing_address_collection": null,
+      "cancel_url": "http://localhost:3001/app/settings/billing?canceled=1",
+      "client_reference_id": "demo-tenant",
+      "consent": null,
+      "consent_collection": null,
+      "created": 1705315800,
+      "currency": "usd",
+      "customer": "cus_test_customer_001",
+      "customer_creation": "always",
+      "customer_details": {
+        "address": null,
+        "email": "test@example.com",
+        "name": null,
+        "phone": null,
+        "tax_exempt": "none",
+        "tax_ids": []
+      },
+      "customer_email": "test@example.com",
+      "expires_at": 1705402200,
+      "invoice": null,
+      "invoice_creation": {
+        "enabled": false,
+        "invoice_data": {
+          "account_tax_ids": null,
+          "custom_fields": null,
+          "description": null,
+          "footer": null,
+          "metadata": {},
+          "rendering_options": null
+        }
+      },
+      "livemode": false,
+      "locale": null,
+      "metadata": {},
+      "mode": "subscription",
+      "payment_intent": null,
+      "payment_link": null,
+      "payment_method_collection": "always",
+      "payment_method_configuration_details": null,
+      "payment_method_types": [
+        "card"
+      ],
+      "payment_status": "paid",
+      "phone_number_collection": {
+        "enabled": false
+      },
+      "recovered_from": null,
+      "setup_intent": null,
+      "shipping_address_collection": null,
+      "shipping_cost": null,
+      "shipping_details": null,
+      "shipping_options": [],
+      "status": "complete",
+      "submit_type": null,
+      "subscription": "sub_test_subscription_001",
+      "success_url": "http://localhost:3001/app/settings/billing?success=1",
+      "total_details": {
+        "amount_discount": 0,
+        "amount_shipping": 0,
+        "amount_tax": 0
+      },
+      "ui_mode": "hosted",
+      "url": null
+    }
+  },
+  "livemode": false,
+  "pending_webhooks": 1,
+  "request": {
+    "id": "req_test_12345",
+    "idempotency_key": null
+  },
+  "type": "checkout.session.completed"
+}

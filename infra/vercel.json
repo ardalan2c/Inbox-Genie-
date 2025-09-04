@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "apps/web/next.config.js", "use": "@vercel/next" }
+  ],
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://api.inbox-genie.dev" 
+  },
+  "framework": "nextjs"
+}
+

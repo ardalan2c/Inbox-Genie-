@@ -1,0 +1,26 @@
+{
+  "AccountSid": "ACtest1234567890abcdef1234567890abcd",
+  "ApiVersion": "2010-04-01",
+  "Body": "1",
+  "DateCreated": "2024-01-15T10:30:00Z",
+  "DateSent": "2024-01-15T10:30:00Z",
+  "DateUpdated": "2024-01-15T10:30:00Z",
+  "Direction": "inbound",
+  "ErrorCode": null,
+  "ErrorMessage": null,
+  "From": "+15551234567",
+  "MessagingServiceSid": "MGtest1234567890abcdef1234567890abcd",
+  "MessageSid": "SMtest_message_12345",
+  "NumMedia": "0",
+  "NumSegments": "1",
+  "Price": null,
+  "PriceUnit": null,
+  "SentAt": "2024-01-15T10:30:00Z",
+  "Sid": "SMtest_message_12345",
+  "Status": "received",
+  "SubresourceUris": {
+    "media": "/2010-04-01/Accounts/ACtest1234567890abcdef1234567890abcd/Messages/SMtest_message_12345/Media.json"
+  },
+  "To": "+15559876543",
+  "Uri": "/2010-04-01/Accounts/ACtest1234567890abcdef1234567890abcd/Messages/SMtest_message_12345.json"
+}

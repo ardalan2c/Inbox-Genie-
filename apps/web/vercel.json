@@ -1,0 +1,9 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "pnpm install && pnpm --filter @inbox-genie/web build",
+  "installCommand": "pnpm install",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_API_URL": ""
+  }
+}

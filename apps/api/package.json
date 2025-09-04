@@ -1,0 +1,47 @@
+{
+  "name": "@inbox-genie/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc -p tsconfig.json",
+    "start:dev": "tsx watch src/main.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/formbody": "^7.4.0",
+    "@inbox-genie/core": "workspace:*",
+    "@nestjs/common": "^10.3.8",
+    "@nestjs/core": "^10.3.8",
+    "@nestjs/platform-fastify": "^10.3.8",
+    "@nestjs/swagger": "^7.4.2",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/sdk-node": "^0.203.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.52.1",
+    "@opentelemetry/resources": "^1.23.0",
+    "@opentelemetry/semantic-conventions": "^1.23.0",
+    "@prisma/client": "^5.16.2",
+    "@sentry/nestjs": "^10.8.0",
+    "@sentry/node": "^10.8.0",
+    "@fastify/helmet": "^11.1.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^17.2.2",
+    "fastify-raw-body": "^4.3.0",
+    "fastify": "^4.28.1",
+    "googleapis": "^159.0.0",
+    "ioredis": "^5.4.1",
+    "prisma": "^5.16.2",
+    "rxjs": "^7.8.1",
+    "stripe": "^16.0.0",
+    "twilio": "^4.21.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.15.7",
+    "typescript": "^5.4.5",
+    "vitest": "^2.0.5"
+  }
+}

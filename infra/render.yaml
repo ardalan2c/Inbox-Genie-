@@ -1,0 +1,71 @@
+services:
+  - type: web
+    name: inbox-genie-api
+    env: docker
+    plan: starter
+    autoDeploy: true
+    rootDir: apps/api
+    healthCheckPath: /health/readiness
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: PORT
+        value: "3001"
+      - key: DEMO_MODE
+        value: "true"
+      - key: OUTREACH_PAUSED
+        value: "true"
+      - key: REQUIRE_REDIS
+        value: "false"
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: APP_BASE_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RETELL_API_KEY
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_MESSAGING_SERVICE_SID
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: FUB_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: NEXTAUTH_SECRET
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: OTEL_EXPORTER_OTLP_ENDPOINT
+        sync: false
+      - key: RATE_LIMIT_IP_PER_MIN
+        value: "60"
+      - key: RATE_LIMIT_TENANT_PER_MIN
+        value: "600"
+    buildCommand: |
+      corepack enable && pnpm i --frozen-lockfile || pnpm i
+      pnpm -r build
+    startCommand: |
+      pnpm --filter @inbox-genie/api prisma:migrate && node dist/main.js
+

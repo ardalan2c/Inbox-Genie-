@@ -1,0 +1,240 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: inboxgenie_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/inboxgenie_test
+      REDIS_URL: redis://localhost:6379
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Lint code
+        run: pnpm lint
+
+      - name: Build packages
+        run: pnpm -r build
+
+      - name: Run database migrations
+        run: |
+          cd apps/api
+          pnpm prisma:generate
+          pnpm prisma:migrate
+
+      - name: Run unit tests
+        run: pnpm test
+
+      - name: Run audit checks
+        run: pnpm audit:run
+        continue-on-error: true  # Allow warnings for missing provider keys
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/inboxgenie_test
+      REDIS_URL: redis://localhost:6379
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      APP_BASE_URL: http://localhost:3001
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: inboxgenie_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Install Playwright
+        run: pnpm --filter @inbox-genie/web playwright install --with-deps chromium
+
+      - name: Build packages
+        run: pnpm -r build
+
+      - name: Setup database
+        run: |
+          cd apps/api
+          pnpm prisma:generate
+          pnpm prisma:migrate
+
+      - name: Start servers in background
+        run: |
+          pnpm -r dev &
+          sleep 30  # Wait for servers to start
+
+      - name: Run accessibility tests
+        run: pnpm e2e
+        
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: test-results/
+          retention-days: 7
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'  # Only run on PRs to avoid rate limits
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/inboxgenie_test
+      REDIS_URL: redis://localhost:6379
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      APP_BASE_URL: http://localhost:3001
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: inboxgenie_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build packages
+        run: pnpm -r build
+
+      - name: Setup database
+        run: |
+          cd apps/api
+          pnpm prisma:generate
+          pnpm prisma:migrate
+
+      - name: Start servers in background
+        run: |
+          pnpm -r dev &
+          sleep 45  # Wait for servers to fully start
+
+      - name: Run Lighthouse audit
+        run: pnpm lh
+        continue-on-error: true  # Don't fail CI on Lighthouse warnings
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-results
+          path: lighthouse-results.json
+          retention-days: 7
+
